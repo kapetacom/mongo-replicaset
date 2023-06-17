@@ -1,0 +1,15 @@
+name: Check
+
+on: [pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: Dockerfile
+          push: false
