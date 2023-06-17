@@ -38,18 +38,3 @@ jobs:
             push: true
             tags: ${{ steps.meta.outputs.tags }}
             labels: ${{ steps.meta.outputs.labels }}
-
-        - name: checkout action
-          uses: actions/checkout@v3
-          with:
-            repository: kapetacom/core-deploy-action
-            path: ./github-action/core-deploy-action
-            token: ${{ secrets.GHA_TOKEN }}
-
-        - name: deploy to Kapeta cloud
-          uses: ./github-action/core-deploy-action
-          env:
-            GITHUB_TOKEN: ${{ secrets.GHA_TOKEN }}
-          with:
-            image: kapetacom/mongodb-replicaset
-            tag: ${{ github.sha }}
