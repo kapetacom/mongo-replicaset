@@ -2,8 +2,7 @@
 USER=root
 PASS=root
 DB=admin
-RS_OK=$(mongosh --quiet -u $USER -p $PASS $DB --eval "rs.isMaster().ismaster" || echo -n 'FAIL')
-
+RS_OK=$(mongosh --quiet -u $USER -p $PASS $DB --eval "rs.status().ok" || echo -n 'FAIL')
 if [ "$RS_OK" = "FAIL" ]; then
     echo -n "initialising replica set..."
     mongosh -u $USER -p $PASS $DB --eval "rs.initiate({_id: 'rs0', members: [ { _id: 0, host: 'localhost:27017'} ] });" || exit 1
@@ -11,7 +10,8 @@ if [ "$RS_OK" = "FAIL" ]; then
     exit 1
 fi
 
-if [ "$RS_OK" = "true" ]; then
+MASTER_OK=$(mongosh --quiet -u $USER -p $PASS $DB --eval "rs.isMaster().ismaster" || echo -n 'FAIL')
+if [ "$MASTER_OK" = "true" ]; then
     echo -n "Replica set is OK"
     exit 0
 fi
