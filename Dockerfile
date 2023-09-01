@@ -1,4 +1,4 @@
-FROM mongo:6.0.6
+FROM mongo:{{ base_image }}
 
 COPY scripts/healthcheck.sh /opt/healthcheck.sh
 COPY mongo-keyfile /data/mongo-keyfile

@@ -4,12 +4,44 @@ on: [pull_request]
 
 jobs:
   check:
+    strategy:
+      matrix:
+        base_image:
+          - 6.0.9
+          - 4.0.1
+          - 7.0.0
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build and push
-        uses: docker/build-push-action@v3
+      - name: Modify Dockerfile
+        run: |
+          # Replace the base image placeholder in the Dockerfile template
+          sed -i "s|{{ base_image }}|${{ matrix.base_image }}|g" Dockerfile
+      
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: kapetacom/mongodb-replicaset
+          tags: |
+            ${{ matrix.base_image }}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build
+        uses: docker/build-push-action@v4
         with:
           context: .
-          file: Dockerfile
+          platforms: linux/amd64,linux/arm64/v8
           push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
